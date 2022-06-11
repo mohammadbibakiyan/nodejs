@@ -2,8 +2,7 @@
 // const tours=JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 const tourRoute = require("../router/toursRouter");
 const Tour=require("./../models/tourModel");
-let tour;
-
+const APIFeatures=require("./../utils/apiFeature")
 // exports.checkId=(req,res,next,value)=>{
 //     const id=value*1;
 //     tour=tours.find(e=>e.id===id);
@@ -20,31 +19,68 @@ let tour;
 //     next()
 // }
 
+exports.aliasTopTour=(req,res,next)=>{
+    req.query.sort="-ratingsAverage,price";
+    req.query.limit="5";
+    next();
+}
+
+exports.status=async (req,res)=>{
+    try{
+        const status=await Tour.aggregate([
+            {$match:{ratingsAverage:{$gte:4.5}}},
+            {$group:{
+                    _id:{$toUpper:"$difficulty"},
+                    numTours:{$sum:1},
+                    numRating:{$sum:"$ratingsQuantity"},
+                    avgRating:{$avg:"$ratingsAverage"},
+                    avgPrice:{$avg:"$price"},
+                    miniPrice:{$min:"$price"},
+                    maxPrice:{$max:"$price"},
+                }   
+            },
+            {
+                $sort:{avgPrice:1}
+            }
+        ])
+
+        res.status(200).json({status:"seccess",data:status})
+    }catch(err){
+        res.status(404).json({status:"fail",message:err.message})
+    }
+}
+
+exports.getMonthlyPlan=async (req,res)=>{
+    const year=req.params.year*1;
+    try{
+        const plan=await Tour.aggregate([
+            {$unwind:"$startDates"},
+            {$match:{
+                startDates:{"$gte":new Date(`${year}-01-01`).toISOString(),"$lte":new Date(`${year}-12-30`).toISOString()}
+            }},
+            {$group:{_id:{$month:{$toDate: '$startDates'}},
+                numTourStarts:{$sum:1},
+                Tours:{$push:"$name"}
+            }},
+            {$addFields:{month:"$_id"}},
+            {$project:{_id:0}},
+            {$sort:{numTourStarts:-1}}
+        ])
+
+        res.status(200).json({status:"seccess",data:plan})
+    }catch(err){
+        res.status(404).json({status:"fail",message:err.message})
+    }
+}
+
 exports.getAllTour=async (req,res)=>{
     try{
-        const queryObj={...req.query};
-        const excludedFields=["page","limit","sort","fields"];
-        excludedFields.forEach(el=>delete queryObj[el]);
-        let queryStr=JSON.stringify(queryObj);
-        queryStr=queryStr.replace(/\b(gte|gt|lt|lte)\b/g,match=>`$${match}`);
-        let query=Tour.find(JSON.parse(queryStr));
-        if(req.query.sort){
-            const sortBy=req.query.sort.split(",").join(" ");
-            query=query.sort(sortBy);
-        }else{
-            query=query.sort("-createAt");
-        }
-
-        if(req.query.fields){
-            const fields=req.query.fields.split(",").join(" ");
-            query=query.select(fields)
-        }else{
-            query=query.select("-__v")
-        }
-        const tours=await query;
+        const features=new APIFeatures(Tour,req.query).filter().sort().limitFields().paginate()
+        const tours=await features.query;
         res.status(200).json({status:"seccess",data:tours,results:tours.length})
     }catch(err){
-        res.status(404).json({status:"fail",message:"there is't any data"})
+        console.log(err);
+        res.status(404).json({status:"fail",message:err})
     }
 }
 
