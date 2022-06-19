@@ -1,6 +1,9 @@
 const express=require("express");
-const usersControler=require("./../controlers/usersControler");
+const usersControler=require("./../controlers/usersController");
+const authController=require("./../controlers/authController")
 const userRoute=express.Router();
+
+userRoute.post("/signup",authController.signUp)
 userRoute.route("/").get(usersControler.getAllUser).post(usersControler.addUser);
 userRoute.route("/:id").get(usersControler.getUser).patch(usersControler.updateUser).delete(usersControler.deleteUser);
 

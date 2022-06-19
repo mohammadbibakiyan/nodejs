@@ -1,13 +1,16 @@
 const express = require('express');
-const toursControler = require('./../controlers/toursControler');
 const tourRoute = express.Router();
+const toursControler = require('../controlers/toursController');
 
 // tourRoute.param('id', toursControler.checkId);
+tourRoute.route("/top-5-cheape").get(toursControler.aliasTopTour,toursControler.getAllTour)
 
+tourRoute.route("/tour-status").get(toursControler.status)
 
+tourRoute.route("/mounthly-plan/:year").get(toursControler.getMonthlyPlan)
 
 tourRoute
-  .route('/')
+.route('/')
   .get(toursControler.getAllTour)
   // .post(toursControler.checkBody,toursControler.addTour);
   .post(toursControler.addTour);

@@ -4,10 +4,12 @@ dotenv.config({path:"./config.env"})
 const app=require("./app");
 const port=3000;
 
-mongoose.connect(process.env.DATABASE,{
+mongoose.connect(process.env.DATABASE_LOCAL,{
     useNewUrlParser:true,
     useCreateIndex:true,
-    useFindAndModify:false
+    useFindAndModify:false,
+    // useUnifiedTopology:true
+    useUnifiedTopology:true
 }).then(()=>console.log("db connection successful")).catch(()=>{
     console.log("db connection faild");
 })
