@@ -28,7 +28,6 @@ exports.login=catchAsync(async (req,res,next)=>{
     const {email,password}=req.body;
     if(!email||!password)return next(new AppError("pleace enter email and password",400));
     const user=await User.findOne({email}).select("+password");
-    console.log(user);
     if(!user) return next(new AppError("password or email is't correct",401));
     const correct= await user.correctPassword(password,user.password);
     if(!correct) return next(new AppError("password or email is't correct",401));
@@ -36,7 +35,6 @@ exports.login=catchAsync(async (req,res,next)=>{
     console.log(token);
     res.status(200).json({status:"success",token})
 });
-
 
 
 exports.protect=catchAsync(async(req,res,next)=>{
@@ -107,4 +105,16 @@ exports.resetPassword=catchAsync(async(req,res,next)=>{
     await user.save();
     const token=signToken(user._id);
     res.status("200").json({status:"seccuss",token})
+})
+
+
+exports.updatePassword=catchAsync(async(req,res,next)=>{
+    const {currentPassword,newPassword,passwordConfirm}=req.body;
+    const user=await User.findById(req.user._id).select("+password");
+    const correct=await user.correctPassword(currentPassword,user.password);
+    if(!correct) next(new AppError("password is't correct",401));
+    user.password=newPassword;
+    user.passwordConfirm=passwordConfirm;
+    await user.save();
+    res.status(200).json({status:"seccuss",message:"password changed seccussfully"})
 })

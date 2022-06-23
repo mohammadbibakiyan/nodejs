@@ -7,6 +7,7 @@ userRoute.post("/signup",authController.signUp);
 userRoute.post("/login",authController.login);
 userRoute.post("/forgotPassword",authController.forgotPassword);
 userRoute.patch("/resetPassword/:token",authController.resetPassword);
+userRoute.patch("/updateMyPassword",authController.protect,authController.updatePassword)
 
 userRoute.route("/").get(usersControler.getAllUser).post(usersControler.addUser);
 userRoute.route("/:id").get(usersControler.getUser).patch(usersControler.updateUser).delete(usersControler.deleteUser);

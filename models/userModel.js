@@ -23,7 +23,7 @@ const userSchema=new mongoose.Schema({
     passwordConfirm:{
         type:String,
         required:[true,"enter confirm password"],
-        validate:{
+        validate:{//فقط زمان save , create این ارزیابی انجام می شود و بهتر است به جای update از save استفاده کنیم تا ارزیابی ها انجام شود
             validator:function(el){
                 return el===this.password
             },
