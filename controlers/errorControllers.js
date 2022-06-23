@@ -15,6 +15,12 @@ const handleValidationErrorDB = err => {
   const message = `Invalid input data. ${errors.join('. ')}`;
   return new AppError(message, 400);
 };
+const handleJwtError=()=>{
+  return new AppError("token is't valid, please log in agian",401)
+};
+const handleJwtExpiredError=()=>{
+  return new AppError("your token expired please log in again",401)
+}
 
 
 const sendErrorDev = (err, res) => {
@@ -59,6 +65,8 @@ module.exports = (err, req, res, next) => {
     if (err.name === 'CastError') error = handleCastErrorDB(error);//مانند id هایی که نادرست
     if (err.code === 11000) error = handleDuplicateFieldsDB(error);//اسم های مشابه 
     if (err.name === 'ValidationError')  error = handleValidationErrorDB(error);//validation error
+    if(err.name==="JsonWebTokenError") error=handleJwtError();
+    if(err.name==="TokenExpiredError") error=handleJwtExpiredError();
     sendErrorProd(error, res);
   }
 };
