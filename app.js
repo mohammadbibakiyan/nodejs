@@ -1,11 +1,16 @@
 const express=require("express");
 const app=express();
-app.use(express.json());
-app.use(express.static(`${__dirname}/public`))
+const mongoSanitize=require("express-mongo-sanitize");
+const xss=require("xss-clean");
 const tourRoute=require("./router/toursRouter");
 const userRoute=require("./router/userRouter");
 const AppError= require("./utils/appError")
 const globalErrorHandler=require("./controlers/errorControllers");
+const rateLimit=require("express-rate-limit")
+const helmet=require("helmet");
+const hpp=require("hpp");
+
+app.use(express.static(`${__dirname}/public`))
 
 // const morgan=require("morgan");
 // console.log(process.env.NODE_ENV);
@@ -18,6 +23,21 @@ const globalErrorHandler=require("./controlers/errorControllers");
 //     next();
 // })
 
+
+app.use(helmet())
+
+const limiter=rateLimit({
+    max:100,
+    windowMs:60*60*1000,
+    message:"too many request from this api, pleace try again in an hour"
+})
+app.use("/api",limiter);
+app.use(express.json({limit:"10kb"}));
+app.use(mongoSanitize());
+app.use(xss());
+app.use(hpp({
+    whitelist:["duration","price","ratingsAverage","ratingsQuantity"]
+}))
 app.use("/api/v1/tours",tourRoute);
 app.use("/api/v1/users",userRoute);
 

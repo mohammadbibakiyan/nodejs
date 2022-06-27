@@ -43,6 +43,10 @@ const userSchema=new mongoose.Schema({
     },
     passwordChangedAt:Date,
     photo:String,  
+    active:{
+        type:Boolean,
+        default:true
+    }
 });
 
 userSchema.methods.correctPassword=async (condidatePassword,userPassword)=>{
@@ -71,6 +75,11 @@ userSchema.pre("save",async function(next){
 userSchema.pre("save",function(next){
     if(!this.isModified("password")||this.isNew) return next();
     this.passwordChangedAt=Date.now()-1000;// شاید طول بکشه تا در پایگاه ذخیره کنه و از اون ور توکن ساخته شده زمانش کمتر از زمان تغییر پسورد باشه و کاربر نیاز باشه دوباره لاگین کنه
+    next();
+});
+
+userSchema.pre(/^find/,function(next){
+    this.find({active:{$ne:false}})
     next();
 })
 

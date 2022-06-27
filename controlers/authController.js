@@ -5,6 +5,21 @@ const catchAsync =require("./../utils/catchAsync");
 const sendEmail=require("./../utils/email");
 const crypto=require("crypto")
 
+
+const createSendToken=(user,statusCode,res)=>{
+    const token=signToken(user._id);
+    const cookieOptions={
+        expires:new Date(Date.now()+process.env.JWT_COOKIE_EXPIRES_IN*24*60*60*1000),
+        // secure:true,
+        httpOnly:true
+    }
+    if(process.env.NODE_ENV==="production") cookieOptions.secure=true;
+    user.password=undefined;
+    res.cookie("jwt",token,cookieOptions);
+    res.status(statusCode).json({status:"seccuss",data:user,token})
+}
+
+
 const signToken=(id)=>{
     return jwt.sign({id},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
 };
@@ -19,8 +34,7 @@ exports.signUp=catchAsync(async (req,res,next)=>{
         passwordConfirm:req.body.passwordConfirm
     });
     const token=signToken(newUser._id)
-    
-    res.status(201).json({status:"seccuss",data:newUser,token})
+    createSendToken(newUser,201,res)
 });
 
 
@@ -31,9 +45,7 @@ exports.login=catchAsync(async (req,res,next)=>{
     if(!user) return next(new AppError("password or email is't correct",401));
     const correct= await user.correctPassword(password,user.password);
     if(!correct) return next(new AppError("password or email is't correct",401));
-    const token=signToken(user._id);
-    console.log(token);
-    res.status(200).json({status:"success",token})
+    createSendToken(user,200,res)
 });
 
 
