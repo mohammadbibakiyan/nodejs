@@ -10,9 +10,11 @@ mongoose.connect(process.env.DATABASE_LOCAL,{
     useFindAndModify:false,
     // useUnifiedTopology:true
     useUnifiedTopology:true
-}).then(()=>console.log("db connection successful")).catch(()=>{
+}).then((e)=>console.log("db connection successful")).catch(()=>{
     console.log("db connection faild");
 })
+
+
 
 app.listen(port,()=>{
     console.log("run server");

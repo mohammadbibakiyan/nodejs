@@ -7,9 +7,15 @@ userRoute.post("/signup",authController.signUp);
 userRoute.post("/login",authController.login);
 userRoute.post("/forgotPassword",authController.forgotPassword);
 userRoute.patch("/resetPassword/:token",authController.resetPassword);
-userRoute.patch("/updateMyPassword",authController.protect,authController.updatePassword);
-userRoute.patch("/updateMe",authController.protect,usersController.updateMe)
-userRoute.delete("/deleteMe",authController.protect,usersController.deleteMe)
+
+userRoute.use(authController.protect);
+
+userRoute.patch("/updateMyPassword",authController.updatePassword);
+userRoute.patch("/updateMe",usersController.updateMe)
+userRoute.delete("/deleteMe",usersController.deleteMe)
+userRoute.get("/me",usersController.getMe,usersController.getUser);
+
+userRoute.use(authController.restrictTo("admin"));
 
 userRoute.route("/").get(usersController.getAllUser).post(usersController.addUser);
 userRoute.route("/:id").get(usersController.getUser).patch(usersController.updateUser).delete(usersController.deleteUser);

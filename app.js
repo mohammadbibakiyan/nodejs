@@ -4,6 +4,7 @@ const mongoSanitize=require("express-mongo-sanitize");
 const xss=require("xss-clean");
 const tourRoute=require("./router/toursRouter");
 const userRoute=require("./router/userRouter");
+const reviewRoute=require("./router/reviewRouter")
 const AppError= require("./utils/appError")
 const globalErrorHandler=require("./controlers/errorControllers");
 const rateLimit=require("express-rate-limit")
@@ -40,7 +41,7 @@ app.use(hpp({
 }))
 app.use("/api/v1/tours",tourRoute);
 app.use("/api/v1/users",userRoute);
-
+app.use("/api/v1/reviews",reviewRoute)
 app.all("*",(req,res,next)=>{
     //first method
     // res.status(404).json({

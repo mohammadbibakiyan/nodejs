@@ -1,7 +1,7 @@
-const { findByIdAndDelete, findByIdAndUpdate } = require('./../models/userModel');
 const User = require('./../models/userModel');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
+const factory=require("./handlerFactory");
 
 const filterObj = (obj, ...allowFields) => {
   const newObj = {};
@@ -26,23 +26,18 @@ exports.deleteMe=catchAsync(async(req,res,next)=>{
   res.status(204).json({status:"success", message:"user deleted", data:null})
 });
 
-exports.getAllUser = catchAsync(async (req, res,next) => {
-  const users=await User.find();
-  res.status(200).json({status:"success",data:users, message: 'this feature not added' });
-})
 
-exports.addUser = (req, res) => {
-  res.status(500).json({ message: 'this feature not added' });
-};
 
-exports.getUser = (req, res) => {
-  res.status(500).json({ message: 'this feature not added' });
-};
+exports.addUser = (req,res,next)=>{
+  res.status(500).json({message:"this route not defind please use from signup path"})
+}
 
-exports.updateUser = (req, res) => {
-  res.status(500).json({ message: 'this feature not added' });
-};
+exports.getMe=(req,res,next)=>{
+  req.params.id=req.user._id;
+  next();
+}
 
-exports.deleteUser = (req, res) => {
-  res.status(500).json({ message: 'this feature not added' });
-};
+exports.getAllUser =factory.getAll(User);
+exports.getUser =factory.getOne(User);
+exports.updateUser = factory.updateOne(User);
+exports.deleteUser = factory.deleteOne(User);

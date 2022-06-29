@@ -5,6 +5,7 @@ const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeature');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory=require("./handlerFactory")
 // exports.checkId=(req,res,next,value)=>{
 //     const id=value*1;
 //     tour=tours.find(e=>e.id===id);
@@ -77,42 +78,8 @@ exports.getMonthlyPlan = catchAsync(async (req, res,next) => {
   res.status(200).json({ status: 'seccess', data: plan });
 });
 
-exports.getAllTour = catchAsync(async (req, res,next) => {
-  const features = new APIFeatures(Tour, req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-  res
-    .status(200)
-    .json({ status: 'seccess', data: tours, results: tours.length });
-});
-
-exports.getTour = catchAsync(async (req, res,next) => {
-  const tour = await Tour.findById(req.params.id);
-  if (!tour) throw new AppError('not exist', 404);
-  res.status(200).json({ status: 'seccess', data: tour });
-});
-
-exports.addTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-  res
-    .status(201)
-    .json({ status: 'seccuss', data: newTour, message: 'creted new tour' });
-});
-
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  if (!tour) throw new AppError('not exist', 404);
-  res.status(200).json({ status: 'seccuss', data: tour });
-});
-
-exports.deleteTour = catchAsync(async (req, res,next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-  if (!tour) return next(new AppError('not exist', 404));
-  res.status(204).json({ status: 'seccuss', data: null });
-});
+exports.getAllTour =factory.getAll(Tour);
+exports.getTour = factory.getOne(Tour,{path:"reviews"});
+exports.addTour = factory.createOne(Tour);
+exports.updateTour = factory.updateOne(Tour);
+exports.deleteTour = factory.deleteOne(Tour)
