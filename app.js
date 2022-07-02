@@ -1,8 +1,10 @@
+const path=require("path")
 const express=require("express");
 const app=express();
 const mongoSanitize=require("express-mongo-sanitize");
 const xss=require("xss-clean");
 const tourRoute=require("./router/toursRouter");
+const viewRoute=require("./router/viewRouter");
 const userRoute=require("./router/userRouter");
 const reviewRoute=require("./router/reviewRouter")
 const AppError= require("./utils/appError")
@@ -11,7 +13,12 @@ const rateLimit=require("express-rate-limit")
 const helmet=require("helmet");
 const hpp=require("hpp");
 
+app.set("view engine","pug");
+app.set("views",path.join(__dirname,"views"));
 app.use(express.static(`${__dirname}/public`))
+
+
+
 
 // const morgan=require("morgan");
 // console.log(process.env.NODE_ENV);
@@ -39,6 +46,7 @@ app.use(xss());
 app.use(hpp({
     whitelist:["duration","price","ratingsAverage","ratingsQuantity"]
 }))
+app.use("/",viewRoute)
 app.use("/api/v1/tours",tourRoute);
 app.use("/api/v1/users",userRoute);
 app.use("/api/v1/reviews",reviewRoute)

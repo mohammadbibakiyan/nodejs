@@ -14,6 +14,9 @@ tourRoute.route("/tour-status").get(toursController.status)
 
 tourRoute.route("/mounthly-plan/:year").get(authController.protect,authController.restrictTo("admin","lead-guide","guide"),toursController.getMonthlyPlan)
 
+tourRoute.route("/tours-within/:distance/center/:latlng/unit/:unit").get(toursController.getToursWithin)
+tourRoute.route("/distance/:latlng/unit/:unit").get(toursController.getDistances)
+
 tourRoute
 .route('/')
   .get(toursController.getAllTour)

@@ -1,5 +1,5 @@
 const mongoose=require("mongoose");
-
+const Tour=require("./tourModel");
 const reviewShema=new mongoose.Schema({
     review:{
         type:String,
@@ -29,6 +29,7 @@ const reviewShema=new mongoose.Schema({
     toJSON:{virtuals:true}
 });
 
+reviewShema.index({user:1,tour:1},{unique:true})
 
 
 reviewShema.pre(/^find/,function(next){
@@ -45,5 +46,42 @@ reviewShema.pre(/^find/,function(next){
     })
     next();
 })
+
+reviewShema.statics.calculateAvrageRating=async function(tourId){
+    const status=await this.aggregate([
+        {$match:{tour:tourId}},
+        {$group:{
+            _id:null,
+            nRating:{$sum:1},
+            avgRating:{$avg:"$rating"}
+        }}
+    ])
+    if(status.length>0){
+        await Tour.findByIdAndUpdate(tourId,{
+        ratingsAverage:status[0].avgRating,
+        ratingsQuantity:status[0].nRating,
+    })}else{
+        await Tour.findByIdAndUpdate(tourId,{
+            ratingsAverage:4.5,
+            ratingsQuantity:0,
+        })
+    }
+};
+
+reviewShema.post("save",async function(doc,next){
+    await doc.constructor.calculateAvrageRating(doc.tour);
+    next();
+})
+
+//findByIdAndUpdate,findByIdAndDelete
+// reviewShema.pre(/^findOneAnd/,async function(next){
+//     this.review=await this.findOne();
+//     next();
+// });
+reviewShema.post(/^findOne/,function(doc,next){
+    doc.constructor.calculateAvrageRating(doc.tour)
+    next();
+})
+
 const Review=new mongoose.model("Review",reviewShema);
 module.exports=Review;

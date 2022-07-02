@@ -78,6 +78,34 @@ exports.getMonthlyPlan = catchAsync(async (req, res,next) => {
   res.status(200).json({ status: 'seccess', data: plan });
 });
 
+//tours-within/:distancd/center/:latlng/unit/:unit
+exports.getToursWithin=catchAsync(async (req,res,next)=>{
+  const {distance,latlng,unit }=req.params;
+  const [lat,lng]=latlng.split(",");
+  const radius=unit==="mi"?distance/3963.2:distance/6378.1;
+  if(!lat||!lng) next(new AppError("please provide latitud and longitut in the latlng"));
+  const tours=await Tour.find({startLocation:{$geoWithin:{$centerSphere:[[lng,lat],radius]}}})
+  res.status(200).json({data:tours,results:tours.length})
+})
+
+exports.getDistances=catchAsync(async (req,res,next)=>{
+  const {latlng,unit}=req.params;
+  const [lat,lng]=latlng.split(",");
+  const multiplier=unit==="mi"?0.000621371:0.001
+  const distance=await Tour.aggregate([
+    {$geoNear:{
+      near:{type:"point",coordinates:[lng*1,lat*1]},
+      distanceField:"distance",
+      distanceMultiplier:multiplier
+    }},
+    {$project:{
+      name:1,
+      distance:1
+    }}
+  ])
+  res.status(200).json({data:distance});
+})
+
 exports.getAllTour =factory.getAll(Tour);
 exports.getTour = factory.getOne(Tour,{path:"reviews"});
 exports.addTour = factory.createOne(Tour);

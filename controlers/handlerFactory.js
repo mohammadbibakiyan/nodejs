@@ -21,7 +21,7 @@ exports.createOne=model=>catchAsync(async (req, res, next) => {
     const doc = await model.create(req.body);
     res
       .status(201)
-      .json({ status: 'seccuss', data: doc, message: 'creted new tour' });
+      .json({ status: 'seccuss', data: doc, message: 'creted new doc' });
 });
 
 exports.getOne=(model,popOption)=>catchAsync(async (req, res,next) => {
@@ -41,6 +41,7 @@ exports.getAll=model=>catchAsync(async (req, res,next) => {
     .sort()
     .limitFields()
     .paginate();
+  // const doc = await features.query.explain();
   const doc = await features.query;
   res
     .status(200)
