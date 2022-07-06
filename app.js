@@ -1,6 +1,7 @@
 const path=require("path")
 const express=require("express");
 const app=express();
+const cookieParser=require("cookie-parser");
 const mongoSanitize=require("express-mongo-sanitize");
 const xss=require("xss-clean");
 const tourRoute=require("./router/toursRouter");
@@ -32,7 +33,12 @@ app.use(express.static(`${__dirname}/public`))
 // })
 
 
-app.use(helmet())
+app.use(helmet({contentSecurityPolicy: {
+    useDefaults: true, 
+    directives: { 
+      'script-src': ["'self'", "https://cdnjs.cloudflare.com/"]  
+    }
+  }}))
 
 const limiter=rateLimit({
     max:100,
@@ -41,6 +47,7 @@ const limiter=rateLimit({
 })
 app.use("/api",limiter);
 app.use(express.json({limit:"10kb"}));
+app.use(cookieParser())
 app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp({

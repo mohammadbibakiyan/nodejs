@@ -16,7 +16,6 @@ exports.updateMe=catchAsync(async (req,res,next)=>{
         next(new AppError("this route for update data not password please use updateMePassword"));
     }
     const filterFields=filterObj(req.body,"name","email")
-    console.log(filterFields);
     const user=await User.findByIdAndUpdate(req.user._id,filterFields,{new:true,runValidators:true});
     res.status(200).json({status:"seccuss",message:"update complited",data:user})
 });

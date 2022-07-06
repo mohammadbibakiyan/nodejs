@@ -5,6 +5,7 @@ const userRoute=express.Router();
 
 userRoute.post("/signup",authController.signUp);
 userRoute.post("/login",authController.login);
+userRoute.get("/logout",authController.logout);
 userRoute.post("/forgotPassword",authController.forgotPassword);
 userRoute.patch("/resetPassword/:token",authController.resetPassword);
 
