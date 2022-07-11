@@ -42,7 +42,6 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) return next(new AppError('pleace enter email and password', 400));
   const user = await User.findOne({ email }).select('+password');
-  console.log(user);
   if (!user) return next(new AppError("password or email is't correct", 401));
   const correct = await user.correctPassword(password, user.password);
   if (!correct) return next(new AppError("password or email is't correct", 401));
@@ -62,8 +61,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookie.jwt) {
-    token = req.cookie.jwt;
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
   if (!token)
     return next(new AppError('you are not logge in please log to access', 401));
