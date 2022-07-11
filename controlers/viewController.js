@@ -1,6 +1,6 @@
 const Tour=require("./../models/tourModel");
 const catchAsync=require("./../utils/catchAsync");
-
+const AppError=require("./../utils/appError")
 
 exports.overview=catchAsync(async (req,res,next)=>{
     const tours=await Tour.find();
@@ -10,9 +10,10 @@ exports.overview=catchAsync(async (req,res,next)=>{
     })
 })
 
-exports.tour=catchAsync(async (req,res)=>{
+exports.tour=catchAsync(async (req,res,next)=>{
     const {slug}=req.params;
     const tour=await Tour.findOne({slug}).populate({path:"reviews",fields:"user rating review"});
+    if(!tour) return next(new AppError("tour not found",404))
     res.status(200)
     .set(
         'Content-Security-Policy',
