@@ -42,7 +42,10 @@ const userSchema=new mongoose.Schema({
         default:"user"
     },
     passwordChangedAt:Date,
-    photo:String,  
+    photo:{
+        type:String,
+        default:"default.jpg"
+    },  
     active:{
         type:Boolean,
         default:true
@@ -66,17 +69,17 @@ userSchema.methods.createPasswordResetToken=()=>{
     return {resetToken,passwordResetToken,passwordResetExpired};
 }
 
-// userSchema.pre("save",async function(next){
-//     this.password=await bcrypt.hash(this.password,12);
-//     this.passwordConfirm=undefined;
-//     next();
-// })
+userSchema.pre("save",async function(next){
+    this.password=await bcrypt.hash(this.password,12);
+    this.passwordConfirm=undefined;
+    next();
+})
 
-// userSchema.pre("save",function(next){
-//     if(!this.isModified("password")||this.isNew) return next();
-//     this.passwordChangedAt=Date.now()-1000;// شاید طول بکشه تا در پایگاه ذخیره کنه و از اون ور توکن ساخته شده زمانش کمتر از زمان تغییر پسورد باشه و کاربر نیاز باشه دوباره لاگین کنه
-//     next();
-// });
+userSchema.pre("save",function(next){
+    if(!this.isModified("password")||this.isNew) return next();
+    this.passwordChangedAt=Date.now()-1000;// شاید طول بکشه تا در پایگاه ذخیره کنه و از اون ور توکن ساخته شده زمانش کمتر از زمان تغییر پسورد باشه و کاربر نیاز باشه دوباره لاگین کنه
+    next();
+});
 
 userSchema.pre(/^find/,function(next){
     this.find({active:{$ne:false}})

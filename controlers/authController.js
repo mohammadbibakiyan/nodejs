@@ -15,6 +15,7 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: true,
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
   user.password = undefined;
   res.cookie('jwt', token, cookieOptions);
   res.status(statusCode).json({ status: 'success', data: user, token });
@@ -162,14 +163,14 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  const { currentPassword, newPassword, passwordConfirm } = req.body;
+  const { currentPassword, newPassword, passwordConfirm } = req.body; 
   const user = await User.findById(req.user._id).select('+password');
   const correct = await user.correctPassword(currentPassword, user.password);
-  if (!correct) next(new AppError("password is't correct", 401));
+  if (!correct) next(new AppError("currentPassword is't correct", 401));
   user.password = newPassword;
   user.passwordConfirm = passwordConfirm;
   await user.save();
   res
     .status(200)
-    .json({ status: 'seccuss', message: 'password changed seccussfully' });
+    .json({ status: 'success', message: 'password changed seccussfully' });
 });

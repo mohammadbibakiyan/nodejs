@@ -25,13 +25,16 @@ const handleJwtExpiredError=()=>{
 
 
 const sendErrorDev = (err,req, res) => {
-  if(req.originalUrl.startsWith=="/api"){
+  if(req.originalUrl.startsWith("/api")){
+    console.error('ERROR 💥', err.stack);
+    // 2) Send generic message
     res.status(err.statusCode).json({
     status: err.status,
     error: err,
     message: err.message,
     stack: err.stack
   });}else{
+    console.error('ERROR 💥', err);
     res.status(err.statusCode).render("error",{
       title:"something was wrong",
       msg:err.message
@@ -40,7 +43,7 @@ const sendErrorDev = (err,req, res) => {
 };
 const sendErrorProd = (err,req, res) => {
   // Operational, trusted error: send message to client
-  if(req.originalUrl.startsWith=="/api"){
+  if(req.originalUrl.startsWith("/api")){
     if (err.isOperational) {
       res.status(err.statusCode).json({
         status: err.status,
