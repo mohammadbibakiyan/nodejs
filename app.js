@@ -7,6 +7,7 @@ const xss=require("xss-clean");
 const tourRoute=require("./router/toursRouter");
 const viewRoute=require("./router/viewRouter");
 const userRoute=require("./router/userRouter");
+const bookingRoute=require("./router/bookingRoute")
 const reviewRoute=require("./router/reviewRouter")
 const AppError= require("./utils/appError")
 const globalErrorHandler=require("./controlers/errorControllers");
@@ -57,6 +58,8 @@ app.use("/",viewRoute)
 app.use("/api/v1/tours",tourRoute);
 app.use("/api/v1/users",userRoute);
 app.use("/api/v1/reviews",reviewRoute)
+app.use("/api/v1/booking",bookingRoute);
+
 app.all("*",(req,res,next)=>{
     //first method
     // res.status(404).json({

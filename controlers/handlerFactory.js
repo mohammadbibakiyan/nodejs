@@ -1,7 +1,7 @@
 const catchAsync=require("./../utils/catchAsync");
 const AppError=require("./../utils/appError");
 const APIFeatures=require("./../utils/apiFeature");
-
+ 
 exports.deleteOne=model=>catchAsync(async (req,res,next)=>{
     const doc=await model.findByIdAndDelete(req.params.id);
     if (!doc) return next(new AppError('not exist doc for this id', 404));

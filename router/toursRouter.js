@@ -16,16 +16,16 @@ tourRoute.route("/mounthly-plan/:year").get(authController.protect,authControlle
 
 tourRoute.route("/tours-within/:distance/center/:latlng/unit/:unit").get(toursController.getToursWithin)
 tourRoute.route("/distance/:latlng/unit/:unit").get(toursController.getDistances)
-
+ 
 tourRoute
-.route('/')
+.route('/') 
   .get(toursController.getAllTour)
   // .post(toursController.checkBody,toursController.addTour);
   .post(authController.protect,authController.restrictTo("admin","lead-guide"),toursController.addTour);
 tourRoute
   .route('/:id')
   .get(toursController.getTour)
-  .patch(authController.protect,authController.restrictTo("admin","lead-guide"),toursController.updateTour)
+  .patch(authController.protect,authController.restrictTo("admin","lead-guide"),toursController.uploadTourImage,toursController.resizeTourPhoto,toursController.updateTour)
   .delete(authController.protect,authController.restrictTo("admin","lead-guide"),toursController.deleteTour);
 
 // tourRoute.route("/:tourId/review").post(authController.protect,authController.restrictTo("user"),reviewController.createReview)
